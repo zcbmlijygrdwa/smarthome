@@ -19,7 +19,7 @@ int main(int argc, char** argv)
     struct sockaddr_in ipOfServer;
  
     memset(dataReceived, '0' ,sizeof(dataReceived));
-    snprintf(dataSending, sizeof(dataSending),"testData");
+    snprintf(dataSending, sizeof(dataSending),"helloFromCClient!");
     if((CreateSocket = socket(AF_INET, SOCK_STREAM, 0))< 0)
     {
         printf("Socket not created \n");

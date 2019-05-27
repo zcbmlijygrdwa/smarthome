@@ -31,18 +31,31 @@ int main()
         printf("\n\nHi,Iam running server.Some Client hit me\n"); // whenever a request from client came. It will be processed here.
         clintConnt = accept(clintListn, (struct sockaddr*)NULL, NULL);
 
-        if((readLen = read(clintConnt, dataReceived, sizeof(dataReceived)-1)) > 0)
+        readLen = recv(clintConnt, dataReceived, sizeof(dataReceived), 0);
+        if(readLen >0)
         {
-            printf("data length from client = %d\n",readLen);
-            printf("data from client: \n");
-            dataReceived[readLen] = 0;
-            if(fputs(dataReceived, stdout) == EOF)
-            {
-                printf("\nStandard output error");
-            }   
+           printf("data length from client = %d\n",readLen);
+           printf("data from client: \n");
+           dataReceived[readLen] = 0;
+           printf("%s\n",dataReceived);
+        }
 
-            printf("\n");
+        /*
+           if((readLen = read(clintConnt, dataReceived, sizeof(dataReceived))) > 0)
+           {
+           printf("data length from client = %d\n",readLen);
+           printf("data from client: \n");
+           dataReceived[readLen] = 0;
+           printf("%s\n",dataReceived);
+
+        //if(fputs(dataReceived, stdout) == EOF)
+        //{
+        //    printf("\nStandard output error");
+        //}   
+
+        printf("\n");
         }   
+         */
 
         printf("now generating time string\n");
 

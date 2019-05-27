@@ -1,5 +1,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/uio.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <stdio.h>
@@ -9,14 +10,16 @@
 #include <errno.h>
 #include <arpa/inet.h>
  
-int main()
+int main(int argc, char** argv)
 {
-    int CreateSocket = 0,n = 0;
+    int CreateSocket = 0;
+    int readLen = 0;
+    char dataSending[1024];
     char dataReceived[1024];
     struct sockaddr_in ipOfServer;
  
     memset(dataReceived, '0' ,sizeof(dataReceived));
- 
+    snprintf(dataSending, sizeof(dataSending),"testData");
     if((CreateSocket = socket(AF_INET, SOCK_STREAM, 0))< 0)
     {
         printf("Socket not created \n");
@@ -32,10 +35,12 @@ int main()
         printf("Connection failed due to port and ip problems\n");
         return 1;
     }
+
+    write(CreateSocket,dataSending, strlen(dataSending));
  
-    while((n = read(CreateSocket, dataReceived, sizeof(dataReceived)-1)) > 0)
+    if((readLen = read(CreateSocket, dataReceived, sizeof(dataReceived)-1)) > 0)
     {
-        dataReceived[n] = 0;
+        dataReceived[readLen] = 0;
         if(fputs(dataReceived, stdout) == EOF)
         {
             printf("\nStandard output error");
@@ -43,8 +48,7 @@ int main()
  
         printf("\n");
     }
- 
-    if( n < 0)
+    else
     {
         printf("Standard input error \n");
     }

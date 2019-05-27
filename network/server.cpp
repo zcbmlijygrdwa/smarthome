@@ -8,6 +8,7 @@
 #include <arpa/inet.h> // defines in_addr structure
 #include <sys/socket.h> // for socket creation
 #include <netinet/in.h> //contains constants and structures needed for internet domain addresses
+#include "../execute/exec.h"
 
 int main()
 {
@@ -38,6 +39,16 @@ int main()
            printf("data from client: \n");
            dataReceived[readLen] = 0;
            printf("%s\n",dataReceived);
+
+        if(readLen>5)
+        {
+            std::string result = exec("tplink-smarthome-api setPowerState 192.168.0.22:9999 \"true\"");
+        }
+        else
+        {
+            std::string result = exec("tplink-smarthome-api setPowerState 192.168.0.22:9999 \"false\"");
+        }
+
         }
 
         /*

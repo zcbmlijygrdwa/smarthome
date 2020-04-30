@@ -1,0 +1,3 @@
+[submodule "home_data_logger/serial"]
+	path = home_data_logger/serial
+	url = https://github.com/zcbmlijygrdwa/serial.git

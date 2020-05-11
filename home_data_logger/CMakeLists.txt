@@ -23,3 +23,11 @@ src/read_sensor_main.cpp
 target_link_libraries(read_sensor_main PUBLIC
 serial
 )
+
+add_executable(light_control
+src/light_control.cpp
+)
+
+target_link_libraries(light_control PUBLIC
+serial
+)

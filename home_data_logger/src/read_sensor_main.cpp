@@ -34,6 +34,7 @@
 #include "../../../../smt/OAPI-Bot/linux_curl/cpp_program/include/test.hpp"
 
 #include "sensor_reader.hpp"
+#include "trailing_smoother.hpp"
 
 using std::string;
 using std::exception;
@@ -254,12 +255,25 @@ int main(int argc, char **argv) {
     printv("before start");
     sr.startReading();
 
+    TrailingSmoother ts_temp(0.01);
+    TrailingSmoother ts_sound(0.01);
+    TrailingSmoother ts_light(0.01);
+
     while(true)
     {
         SensorReader::DataFormat df = sr.fetchData();
         if(df.is_data_good)
         {
             printv(df.str());
+
+
+            double reading_temp = ts_temp.add(df.temperature);
+            double reading_sound = ts_sound.add(df.soundPressure);
+            double reading_light = ts_light.add(df.light);
+            printv(reading_temp);
+            printv(reading_sound);
+            printv(reading_light);
+
         }
         my_sleep(10);
     }

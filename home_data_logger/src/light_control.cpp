@@ -53,69 +53,6 @@ void signal_callback_handler(int signum) {
     exit(signum);
 }
 
-//struct DataFormat
-//{
-//    bool is_data_good = false;
-//    long long unix_time = -1;
-//    double light = -1;
-//    double soundPressure = -1;
-//    double motionX = -1;
-//    double motionY = -1;
-//    double motionZ = -1;
-//    double temperature = -1;
-//
-//    DataFormat(string data_str, long long unix_time_in)
-//    {
-//	    printv(unix_time_in);
-//        size_t pos = 0;
-//        std::string token;
-//        std::string delimiter = ",";
-//        std::vector<double> data_vec;
-//        while ((pos = data_str.find(delimiter)) != std::string::npos) 
-//        {
-//            token = data_str.substr(0, pos);
-//            //std::cout << token << std::endl;
-//            data_vec.push_back(std::stod(token));
-//            data_str.erase(0, pos + delimiter.length());
-//        }
-//        data_vec.push_back(std::stod(data_str));
-//
-//        //printv(data_vec.size());
-//        if(data_vec.size() == 6)
-//        {
-//            unix_time = unix_time_in;
-//            is_data_good = true;
-//            light         = data_vec[0];
-//            soundPressure = data_vec[1];
-//            motionX       = data_vec[2];
-//            motionY       = data_vec[3];
-//            motionZ       = data_vec[4];
-//            temperature   = data_vec[5];
-//        }
-//    }
-//
-//    std::string str()
-//    {
-//        std::stringstream ss;
-//        if(is_data_good)
-//        {
-//            ss<<"unix_time: "<<unix_time<<", light: "<<light<<", soundPressure: "<<soundPressure<<", acc: {"<<motionX<<","<<motionY<<","<<motionZ<<"}, temperature: "<<temperature;
-//        }
-//        else
-//        {
-//            ss<<"BadData...";
-//        }
-//        return ss.str();
-//    }
-//    
-//    std::string strLite()
-//    {
-//        std::stringstream ss;
-//        ss<<unix_time<<","<<light<<","<<soundPressure<<","<<motionX<<","<<motionY<<","<<motionZ<<","<<temperature;
-//        return ss.str();
-//    }
-//};
-
 void my_sleep(unsigned long long milliseconds) {
 #ifdef _WIN32
     Sleep(milliseconds); // 100 ms
@@ -123,21 +60,6 @@ void my_sleep(unsigned long long milliseconds) {
     usleep(milliseconds*1000); // 100 ms
 #endif
 }
-
-//void enumerate_ports()
-//{
-//    vector<serial::PortInfo> devices_found = serial::list_ports();
-//
-//    vector<serial::PortInfo>::iterator iter = devices_found.begin();
-//
-//    while( iter != devices_found.end() )
-//    {
-//        serial::PortInfo device = *iter++;
-//
-//        printf( "(%s, %s, %s)\n", device.port.c_str(), device.description.c_str(),
-//                device.hardware_id.c_str() );
-//    }
-//}
 
 void print_usage()
 {
@@ -289,7 +211,7 @@ int main(int argc, char **argv) {
                     {
                         if(light_status==1)
                         {
-                            system("tplight hsb 192.168.0.129 190 1 50 -t 5000");
+                            system("tplight hsb 192.168.0.129 190 1 50 -t 5000 &");
                             light_status = 2;
                         }
                     }
@@ -297,7 +219,7 @@ int main(int argc, char **argv) {
                     {
                         if(light_status==2)
                         {
-                            system("tplight hsb 192.168.0.129 190 1 20 -t 5000");
+                            system("tplight hsb 192.168.0.129 190 1 20 -t 5000 &");
                             light_status = 3;
                         }
                     }
@@ -305,7 +227,7 @@ int main(int argc, char **argv) {
                     {
                         if(light_status==3)
                         {
-                            system("tplight hsb 192.168.0.129 190 1 10 -t 5000");
+                            system("tplight hsb 192.168.0.129 190 1 10 -t 5000 &");
                             light_status = 4;
                         }
                     }
@@ -313,7 +235,7 @@ int main(int argc, char **argv) {
                     {
                         if(light_status==4)
                         {
-                            system("tplight off 192.168.0.129 -t 5000");
+                            system("tplight off 192.168.0.129 -t 5000 &");
                             light_status = 0;
                         }
                     }
@@ -329,7 +251,7 @@ int main(int argc, char **argv) {
                 quiet_start = std::chrono::steady_clock::now();
                 if(light_status!=1)
                 {
-                    system("tplight on 192.168.0.129 -t 5000");
+                    system("tplight on 192.168.0.129 -t 5000 &");
                     light_status = 1;
                 }
             }

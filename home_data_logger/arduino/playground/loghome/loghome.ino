@@ -2,7 +2,6 @@
 
 #include <Adafruit_CircuitPlayground.h>
 #include "mean_var_data.h"
-
 #include "led_gauge.h"
 
 // we light one pixel at a time, this is our counter
@@ -95,7 +94,7 @@ void loop() {
   Serial.print(mean_var_temp->mean);
   Serial.print(":");
   Serial.println(mean_var_temp->var);
-  setLedGauge(mean_var_temp->mean, 25, 1);
+  setLedGauge(mean_var_temp->mean, 24, 0.5);
 
   delay(100);
 }

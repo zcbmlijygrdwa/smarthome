@@ -96,7 +96,17 @@ void loop() {
   Serial.print(mean_var_temp->mean);
   Serial.print(":");
   Serial.println(mean_var_temp->var);
-  setLedGauge(mean_var_temp->mean, 24, 1);
 
+
+  //LED 
+  if(mean_var_light->mean > 4)
+  {
+    setLedGauge(mean_var_temp->mean, 24, 1);
+  }
+  else
+  {
+    CircuitPlayground.clearPixels();
+  }
+  
   delay(100);
 }

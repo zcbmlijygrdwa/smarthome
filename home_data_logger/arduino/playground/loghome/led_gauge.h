@@ -31,7 +31,7 @@ void setLedGauge(double value, double min_val, double increamental)
     }
     else
     {
-        //CircuitPlayground.clearPixels();
+        CircuitPlayground.clearPixels();
     }
 }
 

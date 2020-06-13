@@ -8,6 +8,7 @@
 uint8_t pixeln = 0;
 
 MeanVarData* mean_var_temp = new MeanVarData(50);
+MeanVarData* mean_var_light = new MeanVarData(200);
 
 void setup() {
   //while (!Serial);
@@ -28,6 +29,9 @@ void loop() {
   {
     CircuitPlayground.redLED(LOW);
   }
+
+  calculateMeanAndVar(CircuitPlayground.temperature(), mean_var_temp);
+  calculateMeanAndVar(CircuitPlayground.lightSensor(), mean_var_light);
 
   //  /************* TEST CAPTOUCH */
   //  Serial.print("Capsense #3: "); Serial.println(CircuitPlayground.readCap(3));
@@ -65,9 +69,10 @@ void loop() {
   }
 
   /************* TEST LIGHT SENSOR */
-  //Serial.print("Light sensor: ");
-  Serial.print(CircuitPlayground.lightSensor());
-
+  Serial.print("Light sensor: ");
+  Serial.print(mean_var_light->mean);
+  Serial.print(":");
+  Serial.print(mean_var_light->var);
   /************* TEST SOUND SENSOR */
   Serial.print(",");
   Serial.print(sound_pressure);
@@ -86,15 +91,12 @@ void loop() {
   //Serial.println(" m/s^2");
 
   /************* TEST THERMISTOR */
-  Serial.print(",");
-  double temp_temp = CircuitPlayground.temperature();
-  
-  calculateMeanAndVar(temp_temp, mean_var_temp);
+  Serial.print(",");  
   //Serial.println(temp_temp);
   Serial.print(mean_var_temp->mean);
   Serial.print(":");
   Serial.println(mean_var_temp->var);
-  setLedGauge(mean_var_temp->mean, 24, 0.5);
+  setLedGauge(mean_var_temp->mean, 24, 1);
 
   delay(100);
 }

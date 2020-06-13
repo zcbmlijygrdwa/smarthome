@@ -3,6 +3,8 @@
 #include <Adafruit_CircuitPlayground.h>
 #include "mean_var_data.h"
 
+#include "led_gauge.h"
+
 // we light one pixel at a time, this is our counter
 uint8_t pixeln = 0;
 
@@ -54,124 +56,7 @@ void loop() {
   //    pixeln = 0;
   //    CircuitPlayground.clearPixels();
   //  }
-  if (CircuitPlayground.lightSensor() > 20)
-  {
-    if (sound_pressure > 52)
-    {
-      pixeln = 0;
-      CircuitPlayground.setPixelColor(pixeln, CircuitPlayground.colorWheel(25 * pixeln));
-    }
-    else
-    {
-      pixeln = 0;
-      CircuitPlayground.setPixelColor(pixeln, 0, 0, 0);
-    }
-
-    if (sound_pressure > 58)
-    {
-      pixeln = 1;
-      CircuitPlayground.setPixelColor(pixeln, CircuitPlayground.colorWheel(25 * pixeln));
-    }
-    else
-    {
-      pixeln = 1;
-      CircuitPlayground.setPixelColor(pixeln, 0, 0, 0);
-    }
-
-    if (sound_pressure > 62)
-    {
-      pixeln = 2;
-      CircuitPlayground.setPixelColor(pixeln, CircuitPlayground.colorWheel(25 * pixeln));
-    }
-    else
-    {
-      pixeln = 2;
-      CircuitPlayground.setPixelColor(pixeln, 0, 0, 0);
-    }
-
-    if (sound_pressure > 64)
-    {
-      pixeln = 3;
-      CircuitPlayground.setPixelColor(pixeln, CircuitPlayground.colorWheel(25 * pixeln));
-    }
-    else
-    {
-      pixeln = 3;
-      CircuitPlayground.setPixelColor(pixeln, 0, 0, 0);
-    }
-
-
-    if (sound_pressure > 66)
-    {
-      pixeln = 4;
-      CircuitPlayground.setPixelColor(pixeln, CircuitPlayground.colorWheel(25 * pixeln));
-    }
-    else
-    {
-      pixeln = 4;
-      CircuitPlayground.setPixelColor(pixeln, 0, 0, 0);
-    }
-
-
-    if (sound_pressure > 68)
-    {
-      pixeln = 5;
-      CircuitPlayground.setPixelColor(pixeln, CircuitPlayground.colorWheel(25 * pixeln));
-    }
-    else
-    {
-      pixeln = 5;
-      CircuitPlayground.setPixelColor(pixeln, 0, 0, 0);
-    }
-
-    if (sound_pressure > 70)
-    {
-      pixeln = 6;
-      CircuitPlayground.setPixelColor(pixeln, CircuitPlayground.colorWheel(25 * pixeln));
-    }
-    else
-    {
-      pixeln = 6;
-      CircuitPlayground.setPixelColor(pixeln, 0, 0, 0);
-    }
-
-    if (sound_pressure > 72)
-    {
-      pixeln = 7;
-      CircuitPlayground.setPixelColor(pixeln, CircuitPlayground.colorWheel(25 * pixeln));
-    }
-    else
-    {
-      pixeln = 7;
-      CircuitPlayground.setPixelColor(pixeln, 0, 0, 0);
-    }
-
-    if (sound_pressure > 75)
-    {
-      pixeln = 8;
-      CircuitPlayground.setPixelColor(pixeln, CircuitPlayground.colorWheel(25 * pixeln));
-    }
-    else
-    {
-      pixeln = 8;
-      CircuitPlayground.setPixelColor(pixeln, 0, 0, 0);
-    }
-
-    if (sound_pressure > 80)
-    {
-      pixeln = 9;
-      CircuitPlayground.setPixelColor(pixeln, CircuitPlayground.colorWheel(25 * pixeln));
-    }
-    else
-    {
-      pixeln = 9;
-      CircuitPlayground.setPixelColor(pixeln, 0, 0, 0);
-    }
-  }
-  else
-  {
-    CircuitPlayground.clearPixels();
-  }
+  
   /************* TEST BOTH BUTTONS */
   if (CircuitPlayground.leftButton()) {
     Serial.println("Left button pressed!");
@@ -204,11 +89,13 @@ void loop() {
   /************* TEST THERMISTOR */
   Serial.print(",");
   double temp_temp = CircuitPlayground.temperature();
+  
   calculateMeanAndVar(temp_temp, mean_var_temp);
   //Serial.println(temp_temp);
   Serial.print(mean_var_temp->mean);
   Serial.print(":");
   Serial.println(mean_var_temp->var);
+  setLedGauge(mean_var_temp->mean, 25, 1);
 
   delay(100);
 }

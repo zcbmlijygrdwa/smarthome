@@ -2,8 +2,11 @@ cmake_minimum_required(VERSION 3.10)
 
 project(home_data_logger)
 
+find_package(jsoncpp REQUIRED)
+
 include_directories(
 include
+${jsoncpp_INCLUDE_DIRS}
 )
 
 add_subdirectory(serial)
@@ -30,4 +33,5 @@ src/light_control.cpp
 
 target_link_libraries(light_control PUBLIC
 serial
+jsoncpp
 )

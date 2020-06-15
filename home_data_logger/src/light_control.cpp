@@ -37,6 +37,8 @@
 #include "sensor_reader.hpp"
 #include "trailing_smoother.hpp"
 
+#include <json/json.h>
+
 using std::string;
 using std::exception;
 using std::cout;
@@ -60,6 +62,8 @@ void my_sleep(unsigned long long milliseconds) {
     usleep(milliseconds*1000); // 100 ms
 #endif
 }
+
+double bright_thres = 15;
 
 void print_usage()
 {
@@ -153,7 +157,182 @@ int run(int argc, char **argv)
     return 0;
 }
 
+int getLightOnOff()
+{
+    std::cout<<"Getting light ON/OFF status....."<<std::endl;
+    std::system("tplight details 192.168.0.132 >light_info.txt"); // execute the UNIX command "ls -l >test.txt"
+    std::stringstream buffer;
+    buffer << std::ifstream("light_info.txt").rdbuf();
+    std::string str =buffer.str();
+    //printv(str);
+    //parse with json
+    Json::Reader reader;
+    Json::Value root;
+
+    int on_off = -1;
+
+    if(reader.parse(str, root))
+    {
+        Json::Value light_state = root["light_state"];
+        on_off = light_state["on_off"].asInt();
+    }
+
+    return on_off;
+}
+
+void calculateLightControl(double reading_temp, double reading_sound, double reading_light)
+{
+    //if(reading_light<10)
+    //{
+    //    if(reading_sound<55.5)
+    //    {
+    //        if(quiet_start_int)
+    //        {
+    //            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now(); 
+    //            long long int time_diff = std::chrono::duration_cast<std::chrono::microseconds>(end - quiet_start).count()/1000000;
+    //            std::cout << "Has been quiet for " << time_diff<<" seconds, light_status = "<<light_status<< std::endl;
+    //            if(time_diff>time_out_0 && time_diff< time_out_1)
+    //            {
+    //                if(light_status==1)
+    //                {
+    //                    system("tplight hsb 192.168.0.132 190 1 50 -t 5000 &");
+    //                    light_status = 2;
+    //                }
+    //            }
+    //            else if(time_diff>=time_out_1 && time_diff< time_out_2)
+    //            {
+    //                if(light_status==2)
+    //                {
+    //                    system("tplight hsb 192.168.0.132 190 1 20 -t 5000 &");
+    //                    light_status = 3;
+    //                }
+    //            }
+    //            else if(time_diff>=time_out_2 && time_diff< time_out_3)
+    //            {
+    //                if(light_status==3)
+    //                {
+    //                    system("tplight hsb 192.168.0.132 190 1 10 -t 5000 &");
+    //                    light_status = 4;
+    //                }
+    //            }
+    //            else if(time_diff>=time_out_3)
+    //            {
+    //                if(light_status==4)
+    //                {
+    //                    system("tplight off 192.168.0.132 -t 5000 &");
+    //                    light_status = 0;
+    //                }
+    //            }
+    //        }
+    //        else
+    //        {
+    //            quiet_start = std::chrono::steady_clock::now();
+    //            quiet_start_int = true;
+    //        }
+    //    }
+    //    else
+    //    {
+    //        quiet_start = std::chrono::steady_clock::now();
+    //        if(light_status==0)
+    //        {
+    //            system("tplight on 192.168.0.132 -t 500 &");
+    //            light_status = 1;
+    //        }
+    //    }
+    //}
+    //else
+    //{
+    //    if(light_status != 0)
+    //    {
+    //        system("tplight off 192.168.0.132 -t 500 &");
+    //        light_status = 0;
+    //    }
+    //}
+
+}
+
+void turnOnLight()
+{
+    system("tplight on 192.168.0.132 -t 5000 &");
+}
+
+void turnOffLight()
+{
+    system("tplight off 192.168.0.132 -t 5000 &");
+}
+
+
+void light_set_brightness(int brightness)
+{
+    std::stringstream ss;
+    ss<<"tplight hsb 192.168.0.132 190 1 "<<brightness<<" -t 3000 &";
+    printv(ss.str());
+    system(ss.str().c_str());
+}
+
+void calculateLightControl2(double reading_temp, double reading_sound, double reading_light, int& light_status)
+{
+    if(reading_light<bright_thres)
+    {
+        if(light_status==0)
+        {
+            if(reading_sound>=56.5)
+            {
+                int brightness = (reading_sound - 56.5)*50;
+                if(brightness>100)
+                {
+                    brightness = 100;
+                }
+                else if(brightness<0)
+                {
+                    brightness = 0;
+                }
+                printv(brightness);
+                light_set_brightness(brightness);
+                light_status = 1;
+            }
+        }
+        else
+        {
+            if(reading_sound>=57)
+            {
+                //control brightness based on sound
+                int brightness = (reading_sound - 56.5)*10;
+                if(brightness>100)
+                {
+                    brightness = 100;
+                }
+                else if(brightness<0)
+                {
+                    brightness = 0;
+                }
+                printv(brightness);
+                light_set_brightness(brightness);
+                light_status = 1;
+            }
+            else
+            {
+                turnOffLight();
+                light_status = 0;
+
+            }
+        }
+    }
+    else
+    {
+        if(light_status==1)
+        {
+            turnOffLight();
+            light_status = 0;
+        }
+    }
+}
+
 int main(int argc, char **argv) {
+
+    int on_off = getLightOnOff();
+    printv(on_off);
+
     //// Register signal and signal handler
     //signal(SIGINT, signal_callback_handler);
     //try {
@@ -179,12 +358,20 @@ int main(int argc, char **argv) {
     sr.startReading();
 
     TrailingSmoother ts_temp(0.01);
-    TrailingSmoother ts_sound(0.01);
-    TrailingSmoother ts_light(0.01);
+    //TrailingSmoother ts_sound(0.01);
+    TrailingSmoother ts_sound(0.001);
+    //TrailingSmoother ts_light(0.01);
+    TrailingSmoother ts_light(0.05);
     std::chrono::steady_clock::time_point quiet_start;
     bool quiet_start_int = false;
-    int light_status = 1;
+    int light_status = on_off;
 
+    double time_out_0 = 300;
+    double time_out_1 = 600;
+    double time_out_2 = 900;
+    double time_out_3 = 1200;
+
+    std::chrono::steady_clock::time_point time_start = std::chrono::steady_clock::now(); 
     while(true)
     {
         SensorReader::DataFormat df = sr.fetchData();
@@ -192,72 +379,33 @@ int main(int argc, char **argv) {
         {
             printv(df.str());
 
-
             double reading_temp = ts_temp.add(df.temperature);
             double reading_sound = ts_sound.add(df.soundPressure);
             double reading_light = ts_light.add(df.light);
             printv(reading_temp);
             printv(reading_sound);
             printv(reading_light);
+            printv(light_status);
 
-            if(reading_sound<57.5)
+
+            std::chrono::steady_clock::time_point time_end = std::chrono::steady_clock::now(); 
+            long long int time_diff_seconds = std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_start).count()/1000000;
+            printv(time_diff_seconds);
+            if(light_status == 0)
             {
-                if(quiet_start_int)
-                {
-                    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now(); 
-                    long long int time_diff = std::chrono::duration_cast<std::chrono::microseconds>(end - quiet_start).count()/1000000;
-                    std::cout << "Has been quiet for " << time_diff<<" seconds, light_status = "<<light_status<< std::endl;
-                    if(time_diff>30 && time_diff< 60)
-                    {
-                        if(light_status==1)
-                        {
-                            system("tplight hsb 192.168.0.129 190 1 50 -t 5000 &");
-                            light_status = 2;
-                        }
-                    }
-                    else if(time_diff>=60 && time_diff< 120)
-                    {
-                        if(light_status==2)
-                        {
-                            system("tplight hsb 192.168.0.129 190 1 20 -t 5000 &");
-                            light_status = 3;
-                        }
-                    }
-                    else if(time_diff>=120 && time_diff< 180)
-                    {
-                        if(light_status==3)
-                        {
-                            system("tplight hsb 192.168.0.129 190 1 10 -t 5000 &");
-                            light_status = 4;
-                        }
-                    }
-                    else if(time_diff>=180)
-                    {
-                        if(light_status==4)
-                        {
-                            system("tplight off 192.168.0.129 -t 5000 &");
-                            light_status = 0;
-                        }
-                    }
-                }
-                else
-                {
-                    quiet_start = std::chrono::steady_clock::now();
-                    quiet_start_int = true;
-                }
+                calculateLightControl2(reading_temp, reading_sound, reading_light, light_status);
             }
             else
             {
-                quiet_start = std::chrono::steady_clock::now();
-                if(light_status!=1)
+                if(time_diff_seconds>=bright_thres)
                 {
-                    system("tplight on 192.168.0.129 -t 5000 &");
-                    light_status = 1;
+                    calculateLightControl2(reading_temp, reading_sound, reading_light, light_status);
+                    time_start = time_end;
                 }
             }
 
+            my_sleep(10);
         }
-        my_sleep(10);
     }
 
     return 0;

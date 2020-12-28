@@ -2,111 +2,203 @@
 
 #include <Adafruit_CircuitPlayground.h>
 #include "mean_var_data.h"
+#include "common_types.h"
 #include "led_gauge.h"
+#include "gauge.h"
+#include "car_motion.h"
+
+long counter = 0;
 
 // we light one pixel at a time, this is our counter
 uint8_t pixeln = 0;
 
-MeanVarData* mean_var_temp = new MeanVarData(50);
-MeanVarData* mean_var_light = new MeanVarData(200);
+CarMotion car_motion;
+bool car_motion_alarm_triggered = false;
+
+Gauge gauge_acc(10,0,30);
+Gauge gauge_car_motion(10,0,9);
+Gauge gauge_light(10,0,1500);
+Gauge gauge_sound(10,50,65);
+int display_mode_number = 5;
+int display_mode = 0;
+
+SensorInfo sensor_info;
+
+
+void updateSensorInfo(SensorInfo& sensor_info)
+{
+    /************* TEST BOTH BUTTONS */
+    sensor_info.button_sensor_info.left_button_pressed = CircuitPlayground.rightButton();
+    sensor_info.button_sensor_info.right_button_pressed = CircuitPlayground.leftButton();
+
+    sensor_info.light_sensor_info.setData(CircuitPlayground.lightSensor());
+
+    sensor_info.temperature_sensor_info.setData(CircuitPlayground.temperature());
+
+    sensor_info.accelerometer_sensor_info.setData(CircuitPlayground.motionX(), CircuitPlayground.motionY(), CircuitPlayground.motionZ());
+
+    double sound_pressure = CircuitPlayground.mic.soundPressureLevel(2);
+    //double sound_pressure = CircuitPlayground.mic.soundPressureLevel(5);
+    //double sound_pressure = CircuitPlayground.mic.soundPressureLevel(10);
+    //double sound_pressure = CircuitPlayground.mic.soundPressureLevel(20);
+    //double sound_pressure = CircuitPlayground.mic.soundPressureLevel(40);
+    //double sound_pressure = CircuitPlayground.mic.soundPressureLevel(80);
+
+    //// test Red #13 LED
+    //if (sound_pressure > 62)
+    //{
+    //    CircuitPlayground.redLED(HIGH);
+    //}
+    //else
+    //{
+    //    CircuitPlayground.redLED(LOW);
+    //}
+    sensor_info.sound_sensor_info.setData(sound_pressure);
+}
 
 void setup() {
-  //while (!Serial);
-  Serial.begin(9600);
-  Serial.println("Circuit Playground test!");
-  CircuitPlayground.begin();
+    //while (!Serial);
+    Serial.begin(9600);
+    Serial.println("Circuit Playground test!");
+    CircuitPlayground.begin();
+
+    gauge_acc.gauge_color_type = Gauge::GaugeColorType::COLOR_SINGLE;
+    gauge_acc.rgb = RGB(255,0,0);
+    gauge_acc.bindLedPin(9,0);
+    gauge_acc.bindLedPin(8,1);
+    gauge_acc.bindLedPin(7,2);
+    gauge_acc.bindLedPin(6,3);
+    gauge_acc.bindLedPin(5,4);
+    gauge_acc.bindLedPin(4,5);
+    gauge_acc.bindLedPin(3,6);
+    gauge_acc.bindLedPin(2,7);
+    gauge_acc.bindLedPin(1,8);
+    gauge_acc.bindLedPin(0,9);
+    
+    gauge_light.gauge_color_type = Gauge::GaugeColorType::COLOR_SINGLE;
+    gauge_light.rgb = RGB(0,50,0);
+    gauge_light.bindLedPin(9,0);
+    gauge_light.bindLedPin(8,1);
+    gauge_light.bindLedPin(7,2);
+    gauge_light.bindLedPin(6,3);
+    gauge_light.bindLedPin(5,4);
+    gauge_light.bindLedPin(4,5);
+    gauge_light.bindLedPin(3,6);
+    gauge_light.bindLedPin(2,7);
+    gauge_light.bindLedPin(1,8);
+    gauge_light.bindLedPin(0,9);
+    
+    gauge_sound.gauge_color_type = Gauge::GaugeColorType::COLOR_SINGLE;
+    gauge_sound.rgb = RGB(0,0,50);
+    gauge_sound.bindLedPin(9,0);
+    gauge_sound.bindLedPin(8,1);
+    gauge_sound.bindLedPin(7,2);
+    gauge_sound.bindLedPin(6,3);
+    gauge_sound.bindLedPin(5,4);
+    gauge_sound.bindLedPin(4,5);
+    gauge_sound.bindLedPin(3,6);
+    gauge_sound.bindLedPin(2,7);
+    gauge_sound.bindLedPin(1,8);
+    gauge_sound.bindLedPin(0,9);
+    
+    gauge_car_motion.gauge_color_type = Gauge::GaugeColorType::COLOR_SINGLE;
+    gauge_car_motion.rgb = RGB(55,55,0);
+    gauge_car_motion.bindLedPin(9,0);
+    gauge_car_motion.bindLedPin(8,1);
+    gauge_car_motion.bindLedPin(7,2);
+    gauge_car_motion.bindLedPin(6,3);
+    gauge_car_motion.bindLedPin(5,4);
+    gauge_car_motion.bindLedPin(4,5);
+    gauge_car_motion.bindLedPin(3,6);
+    gauge_car_motion.bindLedPin(2,7);
+    gauge_car_motion.bindLedPin(1,8);
+    gauge_car_motion.bindLedPin(0,9);
 }
 
 
 void loop() {
-  double sound_pressure = CircuitPlayground.mic.soundPressureLevel(5);
-  // test Red #13 LED
-  if (sound_pressure > 62)
-  {
-    CircuitPlayground.redLED(HIGH);
-  }
-  else
-  {
-    CircuitPlayground.redLED(LOW);
-  }
-
-  calculateMeanAndVar(CircuitPlayground.temperature(), mean_var_temp);
-  calculateMeanAndVar(CircuitPlayground.lightSensor(), mean_var_light);
-
-  //  /************* TEST CAPTOUCH */
-  //  Serial.print("Capsense #3: "); Serial.println(CircuitPlayground.readCap(3));
-  //  Serial.print("Capsense #2: "); Serial.println(CircuitPlayground.readCap(2));
-  //  if (! CircuitPlayground.isExpress()) {  // CPX does not have this captouch pin
-  //    Serial.print("Capsense #0: "); Serial.println(CircuitPlayground.readCap(0));
-  //  }
-  //  Serial.print("Capsense #1: "); Serial.println(CircuitPlayground.readCap(1));
-  //  Serial.print("Capsense #12: "); Serial.println(CircuitPlayground.readCap(12));
-  //  Serial.print("Capsense #6: "); Serial.println(CircuitPlayground.readCap(6));
-  //  Serial.print("Capsense #9: "); Serial.println(CircuitPlayground.readCap(9));
-  //  Serial.print("Capsense #10: "); Serial.println(CircuitPlayground.readCap(10));
-  //
-  //  /************* TEST SLIDE SWITCH */
-  //  if (CircuitPlayground.slideSwitch()) {
-  //    Serial.println("Slide to the left");
-  //  } else {
-  //    Serial.println("Slide to the right");
-  //    CircuitPlayground.playTone(500 + pixeln * 500, 100);
-  //  }
-  //
-  //  /************* TEST 10 NEOPIXELS */
-  //  CircuitPlayground.setPixelColor(pixeln++, CircuitPlayground.colorWheel(25 * pixeln));
-  //  if (pixeln == 11) {
-  //    pixeln = 0;
-  //    CircuitPlayground.clearPixels();
-  //  }
-  
-  /************* TEST BOTH BUTTONS */
-  if (CircuitPlayground.leftButton()) {
-    Serial.println("Left button pressed!");
-  }
-  if (CircuitPlayground.rightButton()) {
-    Serial.println("Right button pressed!");
-  }
-
-  /************* TEST LIGHT SENSOR */
-  Serial.print("Light sensor: ");
-  Serial.print(mean_var_light->mean);
-  Serial.print(":");
-  Serial.print(mean_var_light->var);
-  /************* TEST SOUND SENSOR */
-  Serial.print(",");
-  Serial.print(sound_pressure);
-
-  //  /************* TEST ACCEL */
-  //  // Display the results (acceleration is measured in m/s*s)
-  //Serial.print("X: ");
-  Serial.print(",");
-  Serial.print(CircuitPlayground.motionX());
-  //Serial.print(" \tY: ");
-  Serial.print(",");
-  Serial.print(CircuitPlayground.motionY());
-  //Serial.print(" \tZ: ");
-  Serial.print(",");
-  Serial.print(CircuitPlayground.motionZ());
-  //Serial.println(" m/s^2");
-
-  /************* TEST THERMISTOR */
-  Serial.print(",");  
-  //Serial.println(temp_temp);
-  Serial.print(mean_var_temp->mean);
-  Serial.print(":");
-  Serial.println(mean_var_temp->var);
+    CircuitPlayground.redLED(true);
+    //Serial.print("[");
+    //Serial.print(counter);
+    //Serial.print("] ");
+    counter++;
 
 
-  //LED 
-  if(mean_var_light->mean > 4)
-  {
-    setLedGauge(mean_var_temp->mean, 24, 1);
-  }
-  else
-  {
-    CircuitPlayground.clearPixels();
-  }
-  
-  delay(100);
+    updateSensorInfo(sensor_info);
+
+    car_motion.setSensorInfo(sensor_info);
+
+    if(sensor_info.button_sensor_info.right_button_pressed)
+    {
+        CircuitPlayground.playTone(880,10);
+        display_mode++;
+        display_mode = display_mode%display_mode_number;
+    }
+    
+    if(sensor_info.button_sensor_info.left_button_pressed)
+    {
+        CircuitPlayground.playTone(440,10);
+        display_mode--;
+        if(display_mode<0)
+        {
+            display_mode = display_mode_number-1;
+        }
+    }
+
+    sensor_info.serial_print();
+
+    //LED 
+    //Serial.print("display_mode: ");
+    //Serial.println(display_mode);
+    if(display_mode==0)
+    {
+    gauge_acc.displayColorMapping(sensor_info.accelerometer_sensor_info.acc);
+    }
+    else if(display_mode==1)
+    {
+    gauge_light.displayColorMapping(sensor_info.light_sensor_info.mvd_light.mean);
+    }
+    else if(display_mode==2)
+    {
+    gauge_sound.displayColorMapping(sensor_info.sound_sensor_info.mvd_sound.mean);
+    }
+    else if(display_mode==3)
+    {
+        if(sensor_info.light_sensor_info.light_state)
+        {
+            setLedGauge(sensor_info.temperature_sensor_info.mvd_temperature.mean, 8, 3);
+        }
+        else
+        {
+            CircuitPlayground.clearPixels();
+        }
+    }
+    else if(display_mode==4)
+    {
+        Serial.print("car_motion.car_g_total: ");
+        Serial.println(car_motion.car_g_total);
+        gauge_car_motion.displayColorMapping(car_motion.car_g_total);
+        //Serial.print("car_motion.car_g_total: ");
+        //Serial.println(car_motion.car_g_total);
+        //Serial.print("car_motion.motion_alarm: ");
+        //Serial.println(car_motion.motion_alarm);
+        //Serial.print("car_motion_alarm_triggered: ");
+        //Serial.println(car_motion_alarm_triggered);
+        if(!car_motion_alarm_triggered && car_motion.motion_alarm)
+        {
+            CircuitPlayground.playTone(1220,50);
+            delay(50);
+            CircuitPlayground.playTone(1220,50);
+            car_motion_alarm_triggered = true;
+        }
+
+        if(car_motion_alarm_triggered && !car_motion.motion_alarm)
+        {
+            car_motion_alarm_triggered = false;
+        }
+    }
+
+
+    CircuitPlayground.redLED(false);
+    delay(100);
 }

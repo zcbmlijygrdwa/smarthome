@@ -29,47 +29,88 @@ struct MeanVarData
         //printv(data_buffer);
         free(data_buffer);
     }
+
+    void setData(double new_data)
+    {
+        data_buffer[pointer] = new_data;
+
+        double sum = 0;
+
+        if (pointer < window_size)
+        {
+            pointer++;
+        }
+        else
+        {
+            is_full = true;
+            pointer = 0;
+        }
+
+        int data_size = 0;
+        if (is_full)
+        {
+            data_size = window_size;
+        }
+        else
+        {
+            data_size = pointer;
+        }
+        for (int i = 0 ; i < data_size ; ++i)
+        {
+            sum += data_buffer[i];
+        }
+        mean = sum / data_size;
+
+        var = 0;
+        for (int i = 0 ; i < data_size ; ++i)
+        {
+            double temp = (data_buffer[i] - mean);
+            var += temp * temp;
+        }
+        var = var/data_size;
+        //double standard_deviation = sqrt(var);
+    }
 };
 
-void calculateMeanAndVar(double new_data, MeanVarData* mean_var_data)
-{
-    mean_var_data->data_buffer[mean_var_data->pointer] = new_data;
-
-    double sum = 0;
-
-    if (mean_var_data->pointer < mean_var_data->window_size)
-    {
-        mean_var_data->pointer++;
-    }
-    else
-    {
-        mean_var_data->is_full = true;
-        mean_var_data->pointer = 0;
-    }
-
-    int data_size = 0;
-    if (mean_var_data->is_full)
-    {
-        data_size = mean_var_data->window_size;
-    }
-    else
-    {
-        data_size = mean_var_data->pointer;
-    }
-    for (int i = 0 ; i < data_size ; ++i)
-    {
-        sum += mean_var_data->data_buffer[i];
-    }
-    mean_var_data->mean = sum / data_size;
-
-    mean_var_data->var = 0;
-    for (int i = 0 ; i < data_size ; ++i)
-    {
-        double temp = (mean_var_data->data_buffer[i] - mean_var_data->mean);
-        mean_var_data->var += temp * temp;
-    }
-    mean_var_data->var = mean_var_data->var/data_size;
-    //double standard_deviation = sqrt(mean_var_data->var);
-}
+//void calculateMeanAndVar(double new_data, MeanVarData* mean_var_data)
+//{
+//    mean_var_data->data_buffer[mean_var_data->pointer] = new_data;
+//
+//    double sum = 0;
+//
+//    if (mean_var_data->pointer < mean_var_data->window_size)
+//    {
+//        mean_var_data->pointer++;
+//    }
+//    else
+//    {
+//        mean_var_data->is_full = true;
+//        mean_var_data->pointer = 0;
+//    }
+//
+//    int data_size = 0;
+//    if (mean_var_data->is_full)
+//    {
+//        data_size = mean_var_data->window_size;
+//    }
+//    else
+//    {
+//        data_size = mean_var_data->pointer;
+//    }
+//    for (int i = 0 ; i < data_size ; ++i)
+//    {
+//        sum += mean_var_data->data_buffer[i];
+//    }
+//    mean_var_data->mean = sum / data_size;
+//
+//    mean_var_data->var = 0;
+//    for (int i = 0 ; i < data_size ; ++i)
+//    {
+//        double temp = (mean_var_data->data_buffer[i] - mean_var_data->mean);
+//        mean_var_data->var += temp * temp;
+//    }
+//    mean_var_data->var = mean_var_data->var/data_size;
+//    //double standard_deviation = sqrt(mean_var_data->var);
+//}
 
 #endif

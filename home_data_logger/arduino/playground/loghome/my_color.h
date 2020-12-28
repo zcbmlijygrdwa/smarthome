@@ -6,6 +6,20 @@ struct RGB
     uint8_t r = 0;
     uint8_t g = 0;
     uint8_t b = 0;
+
+    RGB(uint8_t r_i, uint8_t g_i, uint8_t b_i)
+    {
+        r = r_i;
+        g = g_i;
+        b = b_i;
+    }
+    
+    RGB()
+    {
+        r = 255;
+        g = 255;
+        b = 255;
+    }
 };
 
 RGB my_colorWheel(uint8_t WheelPos)

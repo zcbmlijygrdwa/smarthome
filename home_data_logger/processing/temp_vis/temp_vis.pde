@@ -11,6 +11,8 @@ DatagramSocket socket;
 
 byte[] buf = new byte[10*1024];
 
+SimplePlot simplePlotSound = new SimplePlot(1024, 50, 80);
+
 DatagramPacket packet = new DatagramPacket(buf, buf.length);
 
 void setup() {
@@ -37,6 +39,8 @@ void setup() {
     // TODO Auto-generated catch block
     e.printStackTrace();
   }
+  
+  simplePlotSound.setGain(100);
 } 
 
 void draw () {
@@ -52,7 +56,11 @@ void draw () {
 
   ps.setEmitter(width/2, height*0.2, (int)(temperature-16)*20);
   textSize(16);
-  text("Frame rate: " + int(frameRate), 10, 20);
+  text("Frame rate: " + int(frameRate), 10, 20);  
+  
+  
+  //draw plot
+  simplePlotSound.plot();
 }
 
 void keyPressed() {
@@ -98,6 +106,10 @@ void requestData() {
 
     temperature = Double.parseDouble(list2[0]);
     System.out.println("temperature: " + temperature);
+    
+    String[] list3 = split(list[2], '|');
+    double sound = Double.parseDouble(list3[0]);
+    simplePlotSound.addData(sound);
   } 
   catch (SocketException e) {
     e.printStackTrace();

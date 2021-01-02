@@ -12,6 +12,7 @@ DatagramSocket socket;
 byte[] buf = new byte[10*1024];
 
 SimplePlot simplePlotSound = new SimplePlot(1024, 50, 80);
+SimplePlot simplePlotTemperature = new SimplePlot(1024, 16, 33);
 
 DatagramPacket packet = new DatagramPacket(buf, buf.length);
 
@@ -41,6 +42,12 @@ void setup() {
   }
   
   simplePlotSound.setGain(100);
+  simplePlotSound.setOffsetY(100);
+  simplePlotTemperature.setRGB(255,50,50);
+  
+  simplePlotTemperature.setGain(100);
+  simplePlotTemperature.setOffsetY(300);
+  simplePlotTemperature.setRGB(255,50,50);
 } 
 
 void draw () {
@@ -61,6 +68,7 @@ void draw () {
   
   //draw plot
   simplePlotSound.plot();
+  simplePlotTemperature.plot();
 }
 
 void keyPressed() {
@@ -106,6 +114,7 @@ void requestData() {
 
     temperature = Double.parseDouble(list2[0]);
     System.out.println("temperature: " + temperature);
+    simplePlotTemperature.addData(temperature);
     
     String[] list3 = split(list[2], '|');
     double sound = Double.parseDouble(list3[0]);

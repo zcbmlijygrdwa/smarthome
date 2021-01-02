@@ -11,6 +11,11 @@ class SimplePlot {
   double value_range = 0;
   double gain = 1;
 
+  int r = 255;
+  int g = 255;
+  int b = 255;
+
+  int offset_Y = 100;
 
   SimplePlot(int buffer_size_in, double value_min_in, double value_max_in) {
     buffer_size = buffer_size_in;
@@ -24,13 +29,25 @@ class SimplePlot {
     gain = gain_in;
   }
 
+  void setOffsetY(int offset_Y_in)
+  {
+    offset_Y = offset_Y_in;
+  }
+
+  void setRGB(int ri, int gi, int bi)
+  {
+    r = ri;
+    g = gi;
+    b = bi;
+  }
+
   void addData(double data)
   {
-    if(data < value_min)
+    if (data < value_min)
     {
-     data = value_min; 
+      data = value_min;
     }
-    
+
     data = gain*((data - value_min)/value_range);
     if (data_queue.size() < buffer_size)
     {
@@ -45,12 +62,11 @@ class SimplePlot {
   void plot()
   {
 
-    int offset_Y = 100;
 
     PShape path = createShape();
     path.beginShape();
     path.noFill();
-    path.stroke(255);
+    path.stroke(r, g, b);
     //System.out.println("data_queue.size() = "+data_queue.size());
     for (int i = 0; i < data_queue.size(); i++) {
       double temp_data = data_queue.get(i);

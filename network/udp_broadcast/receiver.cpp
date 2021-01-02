@@ -71,7 +71,7 @@ int main()
 			printf("%s\t", smsg);	
 		}
  
-		sleep(1);
+		sleep(0.5);
 	}
  
 	return 0;

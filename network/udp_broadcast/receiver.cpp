@@ -68,7 +68,7 @@ int main()
 		}
 		else
 		{		
-			printf("%s\t", smsg);	
+			printf("%s\n", smsg);	
 		}
  
 		sleep(0.5);

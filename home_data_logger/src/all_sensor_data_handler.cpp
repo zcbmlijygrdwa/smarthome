@@ -1,3 +1,4 @@
+////to compile with g++: g++ -o all_sensor_data_handler all_sensor_data_handler.cpp -lpthread && ./all_sensor_data_handler
 
 // receiver 
 #include <iostream>
@@ -12,8 +13,10 @@
 
 #include <thread>
 #include <fstream>
+#include <vector>
+#include <iomanip>
 
-#include "/home/zhenyu/pointcloud-georeference/valk_lidar/offline_common/valk_lidar_shared/include/shared/test.hpp"
+//#include "/home/zhenyu/pointcloud-georeference/valk_lidar/offline_common/valk_lidar_shared/include/shared/test.hpp"
 
 using namespace std;
 
@@ -185,9 +188,9 @@ int main()
         long long microsecondsUTC = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         double secondsUTC = microsecondsUTC/1000000;
         std::cout<<"\n====== UTC "<<std::setprecision(16)<<secondsUTC<<" ======"<<std::endl;
-        printv(sensor_state_arduino->temperature);
-        printv(sensor_state_arduino->sound);
-        printv(sensor_state_phone->temperature);
+        std::cout<<"sensor_state_arduino->temperature = "<<sensor_state_arduino->temperature<<std::endl;
+        std::cout<<"sensor_state_arduino->sound = "<<sensor_state_arduino->sound<<std::endl;
+        std::cout<<"sensor_state_phone->temperature = "<<sensor_state_phone->temperature<<std::endl;
         myfile.open (data_file_name, std::ios::app);
         //myfile << "111\n";
         myfile << std::setprecision(16)<<secondsUTC<<","<<sensor_state_arduino->temperature <<","<< sensor_state_phone->temperature<<","<<sensor_state_arduino->sound<<"\n";

@@ -1,4 +1,4 @@
-//to compile with g++: g++ -o udp_broadcaster udp_broadcaster.cpp  -I../serial/include/ ../serial/build/libserial.a
+//to compile with g++: g++ -o arduino_udp_broadcaster arduino_udp_broadcaster.cpp  -I../serial/include/ ../serial/build/libserial.a
 
 
 //sender
@@ -64,7 +64,7 @@ int main()
 
     //read serial data
     unsigned long long baud = 9600;
-    std::string port = "/dev/ttyACM1";
+    std::string port = "/dev/ttyACM0";
     serial::Serial serial(port, baud, serial::Timeout::simpleTimeout(10));
 
     std::string str = "";
@@ -79,7 +79,9 @@ int main()
             int ret=sendto(sock, smsg, strlen(smsg), 0, (sockaddr*)&addrto, nlen);
             if(ret<0)
             {
-                cout<<"send error...."<<ret<<endl;
+                long long microsecondsUTC = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                double secondsUTC = microsecondsUTC/1000000;
+                cout<<"send error...."<<ret<<" @ UTC: "<<secondsUTC<<endl;
             }
             str.clear();
         }

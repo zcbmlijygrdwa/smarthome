@@ -184,7 +184,7 @@ int main()
     {
         long long microsecondsUTC = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         double secondsUTC = microsecondsUTC/1000000;
-        std::cout<<"====== UTC "<<std::setprecision(16)<<secondsUTC<<" ======\n"<<std::endl;
+        std::cout<<"\n====== UTC "<<std::setprecision(16)<<secondsUTC<<" ======"<<std::endl;
         printv(sensor_state_arduino->temperature);
         printv(sensor_state_arduino->sound);
         printv(sensor_state_phone->temperature);

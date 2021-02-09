@@ -15,6 +15,12 @@
 
 using namespace curlpp::options;
 
+struct Request
+{
+    std::string number = "";
+    std::string keyword = "";
+};
+
 std::set<std::string> string_set;
 
 size_t writefunc(void *ptr, size_t size, size_t nmemb, std::string *s)
@@ -89,12 +95,11 @@ std::vector<std::string> getContentForKey(std::string str, std::string keyword)
     return output;
 }
 
-std::vector<std::string> getInterestedContents(std::string str, std::vector<std::string> keywords)
+void processContents(std::string str, std::vector<Request> requests)
 {
-    std::vector<std::string> output;
-    for(int i = 0 ; i < keywords.size() ; i++)
+    for(int i = 0 ; i < requests.size() ; i++)
     {
-        std::vector<std::string> temp_content = getContentForKey(str, keywords[i]);
+        std::vector<std::string> temp_content = getContentForKey(str, requests[i].keyword);
         for(int j = 0 ; j < temp_content.size() ; j++)
         {
             std::string temp_str = temp_content[j];
@@ -105,80 +110,84 @@ std::vector<std::string> getInterestedContents(std::string str, std::vector<std:
             else
             {
                 string_set.insert(temp_str);
-                output.push_back(temp_str);
+
+                std::string shell_command = "sh ../notification/android_sms.sh " + requests[i].keyword + " " + temp_str;
+                printv(shell_command);
+                //system(shell_command.c_str());
             }
+        }
+    }
+}
+
+std::vector<Request> loadRequests(std::string file_name)
+{
+    std::vector<Request> output;
+
+    std::vector<std::string> configs = readLinesFromTxt("config.txt");
+    for(int i = 0 ; i < configs.size() ; i++)
+    {
+        std::vector<std::string> tokens = splitString(configs[i], ",");
+        //printvec(tokens);
+        if(tokens.size() ==2 && tokens[0].length() == 10) //make sure number is in correct format
+        {
+            std::cout<<"configs["<<i<<"] = "<<configs[i]<<std::endl;
+            Request temp_request;
+            temp_request.number = tokens[0];
+            temp_request.keyword = tokens[1];
+            output.push_back(temp_request);
         }
     }
 
     return output;
-
 }
 
 
 int main(int, char **)
 {
-    std::vector<std::string> keywords;
-    keywords.push_back("pillow");
+    std::vector<Request> requests;
 
     CURL *curl;
     CURLcode res;
 
     while(1)
     {
+        std::time_t current_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        std::string time_date = std::ctime(&current_time);
+        std::cout<<"\n\n------------------------ "<<time_date;
+        requests = loadRequests("config.txt");
         curl = curl_easy_init();
 
         if(curl) {
             std::string data_payload;
-            printv(1);
             curl_easy_setopt(curl, CURLOPT_URL, "https://sfbay.craigslist.org/search/sby/zip?");
-            printv(2);
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
-            printv(3);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data_payload);
-            printv(4);
 
             res = curl_easy_perform(curl);
-            printv(5);
 
             /* always cleanup */
             curl_easy_cleanup(curl);
-            printv(6);
 
             //to lower case
             std::transform(data_payload.begin(), data_payload.end(), data_payload.begin(),[](unsigned char c){ return std::tolower(c); });
 
             //printv(data_payload);
 
-            std::vector<std::string> contents = getInterestedContents(data_payload, keywords);
-
-            printv(contents.size());
-
-            if(contents.size()>0)
+            int string_set_size_prev = string_set.size();
+            processContents(data_payload, requests);
+            int string_set_size_curr = string_set.size();
+            if(string_set_size_prev == string_set_size_curr)
             {
-                //printvec(contents);
-                for(int i = 0 ; i < contents.size() ; i++)
-                {
-                    std::string number = "3128880068";
-                    std::string shell_command = "sh ../notification/android_sms.sh " + number + " " + contents[i];
-                    printv(shell_command);
-                    //system(shell_command.c_str());
-                }
+                std::cout<<"No new relavent content found..."<<std::endl;
             }
-            else
-
-            {
-                std::cout<<"Cannot find any new content related the keywords..."<<std::endl;
-            }
-
         }
         else
         {
             std::cout<<"Curl initialization failed..."<<std::endl;
         }
 
-        std::cout<<"------------------------"<<std::endl;
-        sleep(30);
-        //sleep(1);
+        //sleep(300);
+        sleep(1);
     }
 
 

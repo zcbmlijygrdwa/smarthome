@@ -111,7 +111,7 @@ void processContents(std::string str, std::vector<Request> requests)
             {
                 string_set.insert(temp_str);
 
-                std::string shell_command = "sh ../notification/android_sms.sh " + requests[i].keyword + " " + temp_str;
+                std::string shell_command = "sh ../notification/android_sms.sh " + requests[i].number+ " " + temp_str;
                 printv(shell_command);
                 system(shell_command.c_str());
             }
@@ -186,7 +186,7 @@ int main(int, char **)
             std::cout<<"Curl initialization failed..."<<std::endl;
         }
 
-        sleep(30);
+        sleep(300);
         //sleep(1);
     }
 

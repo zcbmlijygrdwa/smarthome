@@ -1,3 +1,6 @@
 [submodule "home_data_logger/serial"]
 	path = home_data_logger/serial
 	url = https://github.com/zcbmlijygrdwa/serial.git
+[submodule "cpp_util"]
+	path = cpp_util
+	url = https://github.com/zcbmlijygrdwa/cpp_util.git

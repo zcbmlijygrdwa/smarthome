@@ -186,8 +186,8 @@ int main(int, char **)
             std::cout<<"Curl initialization failed..."<<std::endl;
         }
 
-        //sleep(300);
-        sleep(1);
+        sleep(30);
+        //sleep(1);
     }
 
 

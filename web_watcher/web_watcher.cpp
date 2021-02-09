@@ -113,7 +113,7 @@ void processContents(std::string str, std::vector<Request> requests)
 
                 std::string shell_command = "sh ../notification/android_sms.sh " + requests[i].keyword + " " + temp_str;
                 printv(shell_command);
-                //system(shell_command.c_str());
+                system(shell_command.c_str());
             }
         }
     }

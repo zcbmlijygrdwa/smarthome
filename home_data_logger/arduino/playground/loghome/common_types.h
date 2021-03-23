@@ -69,7 +69,7 @@ struct LightSensorInfo
 
     LightSensorInfo()
     {
-        mvd_light = MeanVarData(50);
+        mvd_light = MeanVarData(20);
     }
 
     void setData(double data)

@@ -28,13 +28,15 @@ SensorInfo sensor_info;
 void updateSensorInfo(SensorInfo& sensor_info)
 {
     /************* TEST BOTH BUTTONS */
+    
     sensor_info.button_sensor_info.left_button_pressed = CircuitPlayground.rightButton();
     sensor_info.button_sensor_info.right_button_pressed = CircuitPlayground.leftButton();
 
     sensor_info.light_sensor_info.setData(CircuitPlayground.lightSensor());
-
+    
     sensor_info.temperature_sensor_info.setData(CircuitPlayground.temperature());
 
+    
     sensor_info.accelerometer_sensor_info.setData(CircuitPlayground.motionX(), CircuitPlayground.motionY(), CircuitPlayground.motionZ());
 
     double sound_pressure = CircuitPlayground.mic.soundPressureLevel(2);
@@ -54,6 +56,7 @@ void updateSensorInfo(SensorInfo& sensor_info)
     //    CircuitPlayground.redLED(LOW);
     //}
     sensor_info.sound_sensor_info.setData(sound_pressure);
+    
 }
 
 void setup() {
@@ -152,7 +155,7 @@ void loop() {
     //Serial.println(display_mode);
     if(display_mode==0)
     {
-    gauge_acc.displayColorMapping(sensor_info.accelerometer_sensor_info.acc);
+    setLedGauge(sensor_info.temperature_sensor_info.mvd_temperature.mean, 8, 3);
     }
     else if(display_mode==1)
     {
@@ -164,14 +167,7 @@ void loop() {
     }
     else if(display_mode==3)
     {
-        if(sensor_info.light_sensor_info.light_state)
-        {
-            setLedGauge(sensor_info.temperature_sensor_info.mvd_temperature.mean, 8, 3);
-        }
-        else
-        {
-            CircuitPlayground.clearPixels();
-        }
+      gauge_acc.displayColorMapping(sensor_info.accelerometer_sensor_info.acc);
     }
     else if(display_mode==4)
     {

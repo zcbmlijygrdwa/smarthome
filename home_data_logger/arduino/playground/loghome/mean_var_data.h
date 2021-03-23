@@ -8,20 +8,20 @@ struct MeanVarData
 {
     int window_size = 50;
     int pointer = 0;
-    double* data_buffer;
+    double* data_buffer = new double[100];
     double mean = 0;
     double var = 0;
     bool is_full = false;
 
     MeanVarData()
     {
-        data_buffer = (double*)calloc(window_size, sizeof(double));
+        //data_buffer = (double*)calloc(window_size, sizeof(double)); //TODO: do not work, need to check
     }
 
     MeanVarData(int new_window_size)
     {
         window_size = new_window_size;
-        data_buffer = (double*)calloc(window_size, sizeof(double));
+        //data_buffer = (double*)calloc(window_size, sizeof(double)); //TODO: do not work, need to check
     }
 
     ~MeanVarData()
@@ -55,8 +55,19 @@ struct MeanVarData
         {
             data_size = pointer;
         }
+        
+        //Serial.print("pointer= ");
+        //Serial.println(pointer);
+        
         for (int i = 0 ; i < data_size ; ++i)
         {
+            
+            //Serial.print("data_buffer[");
+            //Serial.print(i);
+            //Serial.print("] = ");
+            //Serial.println(data_buffer[i]);
+            
+            
             sum += data_buffer[i];
         }
         mean = sum / data_size;

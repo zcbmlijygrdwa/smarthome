@@ -15,13 +15,13 @@ struct AccelerometerSensorInfo
     double acc_z = 0.0;
 
 
-    double acc_x_scale = 1.0;
-    double acc_y_scale = 1.0;
-    double acc_z_scale = 1.0;
+    double acc_x_scale = 1.011693;
+    double acc_y_scale = 1.047120;
+    double acc_z_scale = 0.982878;
 
-    double acc_x_bias = 0;
-    double acc_y_bias = 0;
-    double acc_z_bias = 0;
+    double acc_x_bias = -0.178910;
+    double acc_y_bias = 0.016701;
+    double acc_z_bias = 0.190538;
     
 
     MeanVarData mvd_acc_x;

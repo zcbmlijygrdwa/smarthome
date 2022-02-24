@@ -17,9 +17,9 @@ bool car_motion_alarm_triggered = false;
 
 Gauge gauge_acc(10,0,30);
 Gauge gauge_car_motion(10,0,9);
-Gauge gauge_light(10,0,1500);
+Gauge gauge_light(10,0,500);
 Gauge gauge_sound(10,50,65);
-int display_mode_number = 5;
+int display_mode_number = 4;
 int display_mode = 0;
 
 SensorInfo sensor_info;
@@ -155,7 +155,8 @@ void loop() {
     //Serial.println(display_mode);
     if(display_mode==0)
     {
-    setLedGauge(sensor_info.temperature_sensor_info.mvd_temperature.mean, 8, 3);
+    //setLedGauge(sensor_info.temperature_sensor_info.mvd_temperature.mean, 8, 3);
+    setLedGaugeTwoDigits(sensor_info.temperature_sensor_info.mvd_temperature.mean);
     }
     else if(display_mode==1)
     {
@@ -163,13 +164,9 @@ void loop() {
     }
     else if(display_mode==2)
     {
-    gauge_sound.displayColorMapping(sensor_info.sound_sensor_info.mvd_sound.mean);
-    }
-    else if(display_mode==3)
-    {
       gauge_acc.displayColorMapping(sensor_info.accelerometer_sensor_info.acc);
     }
-    else if(display_mode==4)
+    else if(display_mode==3)
     {
         Serial.print("car_motion.car_g_total: ");
         Serial.println(car_motion.car_g_total);
@@ -193,6 +190,10 @@ void loop() {
             car_motion_alarm_triggered = false;
         }
     }
+    //else if(display_mode==4)
+    //{
+    //gauge_sound.displayColorMapping(sensor_info.sound_sensor_info.mvd_sound.mean);
+    //}
 
 
     CircuitPlayground.redLED(false);

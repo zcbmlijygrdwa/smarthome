@@ -9,7 +9,7 @@ struct CarMotion
 {
 
     double car_g_total = 0;
-    double car_g_alarm_threshold = 5;
+    double car_g_alarm_threshold = 10;
     bool motion_alarm = false;
 
     CarMotion()
@@ -22,9 +22,11 @@ struct CarMotion
 
     void setSensorInfo(const SensorInfo& sensor_info)
     {
-        double acc_x = abs(sensor_info.accelerometer_sensor_info.acc_x);
-        double acc_y = abs(sensor_info.accelerometer_sensor_info.acc_y);
-        double acc_in = sqrt(0.6*acc_x*acc_x + 0.4*acc_y*acc_y);
+        double acc_x = sensor_info.accelerometer_sensor_info.acc_x;
+        double acc_y = sensor_info.accelerometer_sensor_info.acc_y;
+        double acc_z = sensor_info.accelerometer_sensor_info.acc_z;
+        
+        double acc_in = sqrt(acc_x*acc_x + acc_y*acc_y + acc_z*acc_z) - 9.8;
 
         if(car_g_total < acc_in)
         {

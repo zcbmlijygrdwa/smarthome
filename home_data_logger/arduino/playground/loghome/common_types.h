@@ -14,8 +14,15 @@ struct AccelerometerSensorInfo
     double acc_y = 0.0;
     double acc_z = 0.0;
 
-    double acc_x_bias = 1.0;    //??? TODO : need to comfirm this.
-    double acc_y_bias = -0.8;    //??? TODO : need to comfirm this.
+
+    double acc_x_scale = 1.0;
+    double acc_y_scale = 1.0;
+    double acc_z_scale = 1.0;
+
+    double acc_x_bias = 0;
+    double acc_y_bias = 0;
+    double acc_z_bias = 0;
+    
 
     MeanVarData mvd_acc_x;
     MeanVarData mvd_acc_y;
@@ -32,11 +39,11 @@ struct AccelerometerSensorInfo
 
     void setData(double ax, double ay, double az)
     {
-        acc_x = ax - acc_x_bias;
+        acc_x = ax*acc_x_scale+acc_x_bias;
         mvd_acc_x.setData(acc_x);
-        acc_y = ay - acc_y_bias;
+        acc_y = ay*acc_y_scale+acc_y_bias;
         mvd_acc_y.setData(acc_y);
-        acc_z = az;
+        acc_z = az*acc_z_scale+acc_z_bias;
         mvd_acc_z.setData(acc_z);
 
         acc = sqrt(acc_x*acc_x + acc_y*acc_y + acc_z*acc_z);

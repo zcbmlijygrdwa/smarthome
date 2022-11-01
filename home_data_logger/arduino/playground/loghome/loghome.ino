@@ -15,8 +15,8 @@ uint8_t pixeln = 0;
 CarMotion car_motion;
 bool car_motion_alarm_triggered = false;
 
-Gauge gauge_acc(10,0,30);
-Gauge gauge_car_motion(10,0,9);
+Gauge gauge_acc(10,0,10);
+Gauge gauge_car_motion(10,0,10);
 Gauge gauge_light(10,0,500);
 Gauge gauge_sound(10,50,65);
 int display_mode_number = 4;
@@ -35,6 +35,7 @@ void updateSensorInfo(SensorInfo& sensor_info)
     sensor_info.light_sensor_info.setData(CircuitPlayground.lightSensor());
     
     sensor_info.temperature_sensor_info.setData(CircuitPlayground.temperature());
+    
 
     
     sensor_info.accelerometer_sensor_info.setData(CircuitPlayground.motionX(), CircuitPlayground.motionY(), CircuitPlayground.motionZ());
@@ -61,7 +62,7 @@ void updateSensorInfo(SensorInfo& sensor_info)
 
 void setup() {
     //while (!Serial);
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial.println("Circuit Playground test!");
     CircuitPlayground.begin();
 
@@ -148,28 +149,18 @@ void loop() {
         }
     }
 
-    sensor_info.serial_print();
+    // print all sensor infor
+    //sensor_info.serial_print();
+    sensor_info.serial_print2();
+    
 
     //LED 
     //Serial.print("display_mode: ");
     //Serial.println(display_mode);
     if(display_mode==0)
     {
-    //setLedGauge(sensor_info.temperature_sensor_info.mvd_temperature.mean, 8, 3);
-    setLedGaugeTwoDigits(sensor_info.temperature_sensor_info.mvd_temperature.mean);
-    }
-    else if(display_mode==1)
-    {
-    gauge_light.displayColorMapping(sensor_info.light_sensor_info.mvd_light.mean);
-    }
-    else if(display_mode==2)
-    {
-      gauge_acc.displayColorMapping(sensor_info.accelerometer_sensor_info.acc);
-    }
-    else if(display_mode==3)
-    {
-        Serial.print("car_motion.car_g_total: ");
-        Serial.println(car_motion.car_g_total);
+        //Serial.print("car_motion.car_g_total: ");
+        //Serial.println(car_motion.car_g_total);
         gauge_car_motion.displayColorMapping(car_motion.car_g_total);
         //Serial.print("car_motion.car_g_total: ");
         //Serial.println(car_motion.car_g_total);
@@ -179,9 +170,9 @@ void loop() {
         //Serial.println(car_motion_alarm_triggered);
         if(!car_motion_alarm_triggered && car_motion.motion_alarm)
         {
-            CircuitPlayground.playTone(1220,50);
-            delay(50);
-            CircuitPlayground.playTone(1220,50);
+            CircuitPlayground.playTone(611,50);
+            delay(25);
+            CircuitPlayground.playTone(1222,50);
             car_motion_alarm_triggered = true;
         }
 
@@ -189,6 +180,19 @@ void loop() {
         {
             car_motion_alarm_triggered = false;
         }
+    }
+    else if(display_mode==1)
+    {
+      //setLedGauge(sensor_info.temperature_sensor_info.mvd_temperature.mean, 8, 3);
+      setLedGaugeTwoDigits(sensor_info.temperature_sensor_info.mvd_temperature.mean);
+    }
+    else if(display_mode==2)
+    {
+      gauge_acc.displayColorMapping(sensor_info.accelerometer_sensor_info.acc);
+    }
+    else if(display_mode==3)
+    {
+        gauge_light.displayColorMapping(sensor_info.light_sensor_info.mvd_light.mean);
     }
     //else if(display_mode==4)
     //{

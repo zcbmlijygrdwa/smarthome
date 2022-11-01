@@ -32,9 +32,9 @@ struct AccelerometerSensorInfo
 
     AccelerometerSensorInfo()
     {
-        mvd_acc_x = MeanVarData(1);
-        mvd_acc_y = MeanVarData(1);
-        mvd_acc_z = MeanVarData(1);
+        mvd_acc_x = MeanVarData(10);
+        mvd_acc_y = MeanVarData(10);
+        mvd_acc_z = MeanVarData(10);
     }
 
     void setData(double ax, double ay, double az)
@@ -46,25 +46,37 @@ struct AccelerometerSensorInfo
         acc_z = az*acc_z_scale+acc_z_bias;
         mvd_acc_z.setData(acc_z);
 
-        acc = sqrt(acc_x*acc_x + acc_y*acc_y + acc_z*acc_z);
+        acc = sqrt(acc_x*acc_x + acc_y*acc_y + acc_z*acc_z) - 9.8;
     }
 };
 
 struct TemperatureSensorInfo
 {
+    enum Unit {Celsius, Fahrenheit};
     double temperature = 0.0;
     MeanVarData mvd_temperature;
     bool temperature_state = false;
 
+    Unit temperature_unit = Unit::Celsius;
+
     TemperatureSensorInfo()
     {
-        mvd_temperature = MeanVarData(50);
+        mvd_temperature = MeanVarData(100);
+    }
+
+    void setTemperatureUnit(Unit unit)
+    {
+        temperature_unit = unit;
     }
 
     void setData(double data)
     {
-        temperature = data;
-        mvd_temperature.setData(data);
+        if(temperature_unit == Unit::Fahrenheit)
+            temperature = data*(9.0/5.0) + 32.0;
+        else
+            temperature = data;
+
+        mvd_temperature.setData(temperature);
     }
 };
 
@@ -114,6 +126,27 @@ struct SoundSensorInfo
 
 };
 
+struct SerialMessage
+{
+    // light
+    double light_mean = 0;
+    double light_var = 0;
+
+    // sound
+    double sound_mean = 0;
+    double sound_var = 0;
+
+    // temperature
+    double temperature_mean = 0;
+    double temperature_var = 0;
+
+    // acceleration
+    double a_x = 0;
+    double a_y = 0;
+    double a_z = 0;
+  
+};
+
 struct SensorInfo
 {
     ButtonSensorInfo button_sensor_info;
@@ -121,6 +154,32 @@ struct SensorInfo
     TemperatureSensorInfo temperature_sensor_info;
     LightSensorInfo light_sensor_info;
     SoundSensorInfo sound_sensor_info;
+
+    SensorInfo()
+    {
+        //temperature_sensor_info.setTemperatureUnit(TemperatureSensorInfo::Unit::Fahrenheit);
+    }
+
+    void serial_print2()
+    {
+      SerialMessage* sm = new SerialMessage();
+
+      sm->light_mean = light_sensor_info.mvd_light.mean;
+      sm->light_var = light_sensor_info.mvd_light.var;
+
+      sm->sound_mean = sound_sensor_info.mvd_sound.mean;
+      sm->sound_var = sound_sensor_info.mvd_sound.var;
+
+      sm->temperature_mean = temperature_sensor_info.mvd_temperature.mean;
+      sm->temperature_var = temperature_sensor_info.mvd_temperature.var;
+
+      sm->a_x = accelerometer_sensor_info.acc_x;
+      sm->a_y = accelerometer_sensor_info.acc_y;
+      sm->a_z = accelerometer_sensor_info.acc_z;
+      
+      Serial.write((char*)sm,sizeof(SerialMessage));
+      delete sm;
+    }
 
     void serial_print()
     {

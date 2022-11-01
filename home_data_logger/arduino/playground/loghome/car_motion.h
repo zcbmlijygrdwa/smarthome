@@ -21,12 +21,9 @@ struct CarMotion
     }
 
     void setSensorInfo(const SensorInfo& sensor_info)
-    {
-        double acc_x = sensor_info.accelerometer_sensor_info.acc_x;
-        double acc_y = sensor_info.accelerometer_sensor_info.acc_y;
-        double acc_z = sensor_info.accelerometer_sensor_info.acc_z;
-        
-        double acc_in = sqrt(acc_x*acc_x + acc_y*acc_y + acc_z*acc_z) - 9.8;
+    {        
+        double acc_in = sensor_info.accelerometer_sensor_info.acc;
+        //double acc_in = sqrt(acc_x*acc_x  + acc_z*acc_z);
 
         if(car_g_total < acc_in)
         {

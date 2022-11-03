@@ -128,6 +128,11 @@ struct SoundSensorInfo
 
 struct SerialMessage
 {
+
+    int start_flag1 = 43; // 00000000 00000000 00000000 00101011
+    int start_flag2 = 0;  // 00000000 00000000 00000000 00000000
+    
+  
     // light
     double light_mean = 0;
     double light_var = 0;
